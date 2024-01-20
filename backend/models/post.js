@@ -25,7 +25,7 @@ const createPostsTable = async () => {
   }
 };
 
-const createPost = async (title, content, imageUrl) => {
+const createPost = async (title, content) => {
     try {
       const client = await pool.connect();
   
@@ -35,7 +35,7 @@ const createPost = async (title, content, imageUrl) => {
         RETURNING *;
       `;
   
-      const values = [title, content, `${imageUrl}`, 'Sakdipat']; // Adjust imageUrl and creator as needed
+      const values = [title, content, 'images/cat.jpg', 'Sakdipat']; // Adjust imageUrl and creator as needed
   
       const result = await client.query(insertPostQuery, values);
   

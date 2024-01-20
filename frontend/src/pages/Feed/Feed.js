@@ -106,7 +106,7 @@ class Feed extends Component {
       editLoading: true
     });
     // Set up data (with image!)
-    let url = 'http://localhost:8080/feed/posts';
+    let url = 'http://localhost:8080/feed/post';
     let method = 'POST';
     if (this.state.editPost) {
       url = 'URL';
@@ -119,8 +119,7 @@ class Feed extends Component {
       },
       body: JSON.stringify({
         title: postData.title,
-        content: postData.content,
-
+        content: postData.content
       })
     })
       .then(res => {

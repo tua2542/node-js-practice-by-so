@@ -36,7 +36,7 @@ class UserController {
       const email = req.body.email;
       const password = req.body.password;
 
-      const user = await User.User.findByEmail(email);
+      const user = await User.findByEmail(email);
 
       if (!user) {
         const error = new Error('A user with this email could not be found.');

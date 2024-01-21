@@ -1,4 +1,4 @@
-const db = require('../controllers/db');
+const db = require('../util/db');
 
 const createPostsTable = async () => {
   const createTableQuery = `

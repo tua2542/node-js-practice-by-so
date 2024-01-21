@@ -65,16 +65,24 @@ const getPostById = async (postId) => {
   }
 };
 
-const getPosts = async () => {
+const getPosts = async (currentPage, perPage) => {
   try {
     const client = await db.connect();
 
-    const getPostsQuery = 'SELECT * FROM posts';
-    const result = await client.query(getPostsQuery);
+    const countQuery = 'SELECT COUNT(*) FROM posts';
+    const countResult = await client.query(countQuery);
+    const totalItems = countResult.rows[0].count;
+
+    const getPostsQuery = 'SELECT * FROM posts OFFSET $1 LIMIT $2';
+    const offset =(currentPage - 1) * perPage;
+    const result = await client.query(getPostsQuery, [offset, perPage]);
 
     client.release();
 
-    return result.rows;
+    return {
+      posts: result.rows,
+      totalItems: totalItems,
+    }
   } catch (error) {
     console.error('Error fetching posts:', error);
     throw error;
@@ -97,4 +105,20 @@ const updatePost = async (id, title, imageUrl, content) => {
   }
 };
 
-module.exports = { createPostsTable, createPost, getPostById, getPosts, updatePost };
+const deletePost = async (id) => {
+  try{
+    const client = await db.connect();
+
+    const deletePostQuery = 'DELETE FROM posts WHERE "id" = $1 RETURNING *';
+    const result = await client.query(deletePostQuery, [id]);
+
+    client.release();
+
+    return result.rows[0];
+  } catch (error) {
+    console.log('Error deleting post:', error);
+    throw error;
+  }
+}
+
+module.exports = { createPostsTable, createPost, getPostById, getPosts, updatePost, deletePost };

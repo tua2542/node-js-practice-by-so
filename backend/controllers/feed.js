@@ -6,8 +6,16 @@ const postModel = require('../models/post');
 
 exports.getPosts = async (req, res, next) => {
   try {
-    const posts = await postModel.getPosts();
-    res.status(200).json({ message: 'Fetched posts successfully.', posts: posts });
+    const currentPage = req.query.page || 1;
+    const perPage = 2;
+
+    const { posts, totalItems } = await postModel.getPosts(currentPage, perPage);
+
+    res.status(200).json({ 
+      message: 'Fetched posts successfully.', 
+      posts: posts,
+    totalItems: totalItems
+  });
   } catch (error) {
     if (!error.statusCode) {
       error.statusCode = 500;
@@ -115,6 +123,33 @@ exports.getPost = async (req, res, next) => {
   }
 };
 
+exports.deletePost = async (req, res, next) => {
+  const postId = req.params.postId;
+
+  try {
+    // Get the post to check if it exists and to retrieve the image path
+    const post = await postModel.getPostById(postId);
+
+    if (!post) {
+      const error = new Error('Could not find post.');
+      error.statusCode = 404;
+      throw error;
+    }
+
+    // Assuming you have a function clearImage that removes the image
+    clearImage(post.imageUrl);
+
+    // Call the deletePost method from the postModel to delete the post from the database
+    await postModel.deletePost(postId);
+
+    res.status(200).json({ message: 'deleted post.' });
+  } catch (error) {
+    if (!error.statusCode) {
+      error.statusCode = 500;
+    }
+    next(error);
+  }
+};
 const clearImage = filePath => {
   filePath = path.join(__dirname, '..', filePath);
   fs.unlink(filePath, err => console.log(err));

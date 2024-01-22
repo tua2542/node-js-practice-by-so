@@ -3,6 +3,7 @@ const path = require('path');
 
 const { validationResult } = require('express-validator');
 const postModel = require('../models/post');
+const userModel = require('../models/user');
 
 exports.getPosts = async (req, res, next) => {
   try {
@@ -38,13 +39,16 @@ exports.createPost = async (req, res, next) => {
   }
   const { title, content } = req.body;
   const imageUrl = req.file.path.replace("\\","/");
-  let creator = req.userId;
+  let userId = req.userId;
+
+  // Fetch the user to include in the response
+  const user = await userModel.User.getUserById(userId);
 
   try {
-    const createdPost = await postModel.createPost(title, content, imageUrl, creator);
+    const createdPost = await postModel.createPost(title, content, imageUrl, userId);
     res.status(201).json({
       message: 'Post created successfully!',
-      post: createdPost
+      post: { ...createdPost, creator: { id: user.id, name: user.name } }
     });
   } catch (error) {
     if (!error.statusCode) {

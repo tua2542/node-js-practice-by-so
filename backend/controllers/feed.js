@@ -38,7 +38,7 @@ exports.createPost = async (req, res, next) => {
   }
   const { title, content } = req.body;
   const imageUrl = req.file.path.replace("\\","/");
-  const creator = 'Maximilian';
+  let creator = req.userId;
 
   try {
     const createdPost = await postModel.createPost(title, content, imageUrl, creator);

@@ -4,7 +4,7 @@ const createUserTable = async () => {
     const createTableQuery = `
     CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
     CREATE TABLE IF NOT EXISTS users (
-      id uuid DEFAULT uuid_generate_v4 () PRIMARY KEY,
+    id uuid DEFAULT uuid_generate_v4 () PRIMARY KEY,
     email VARCHAR(255) NOT NULL,
     password VARCHAR(255) NOT NULL,
     name VARCHAR(255) NOT NULL,
@@ -24,7 +24,7 @@ const createUserTable = async () => {
 };
 
 class User {
-    static async create(email, hashedPassword, name) {
+    static async createUser(email, hashedPassword, name) {
       const result = await db.query(
         'INSERT INTO users (email, password, name) VALUES ($1, $2, $3) RETURNING *',
         [email, hashedPassword, name]
@@ -34,7 +34,7 @@ class User {
     }
   
     static async findByEmail(email) {
-      const result = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
+      const result = await db.query('SELECT * FROM users WHERE email = $1', [email]);
   
       return result.rows[0];
     }

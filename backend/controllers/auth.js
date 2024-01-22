@@ -20,7 +20,7 @@ class UserController {
       const password = req.body.password;
 
       const hashedPw = await bcrypt.hash(password, 12);
-      const user = await User.User.create(email, hashedPw, name);
+      const user = await User.User.createUser(email, hashedPw, name);
 
       res.status(201).json({ message: 'User created!', userId: user.id });
     } catch (err) {
@@ -36,7 +36,7 @@ class UserController {
       const email = req.body.email;
       const password = req.body.password;
 
-      const user = await User.findByEmail(email);
+      const user = await User.User.findByEmail(email);
 
       if (!user) {
         const error = new Error('A user with this email could not be found.');

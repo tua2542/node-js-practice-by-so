@@ -8,7 +8,7 @@ const createPostsTable = async () => {
       title VARCHAR(255) NOT NULL,
       "imageUrl" VARCHAR(255) NOT NULL,
       content TEXT NOT NULL,
-      creator VARCHAR(255) NOT NULL,
+      creator uuid REFERENCES users(id) NOT NULL,
       "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
       "updatedAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
     )

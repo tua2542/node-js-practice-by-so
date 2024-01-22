@@ -50,7 +50,11 @@ class Feed extends Component {
       page--;
       this.setState({ postPage: page });
     }
-    fetch('http://localhost:8080/feed/posts?page=' + page)
+    fetch('http://localhost:8080/feed/posts?page=' + page, {
+      headers: {
+        Authorization: 'Bearer ' + this.props.token
+      }
+    })
       .then(res => {
         if (res.status !== 200) {
           throw new Error('Failed to fetch posts.');
@@ -93,7 +97,7 @@ class Feed extends Component {
 
   startEditPostHandler = postId => {
     this.setState(prevState => {
-      const loadedPost = { ...prevState.posts.find(p => p.id === postId) };
+      const loadedPost = { ...prevState.posts.find(p => p._id === postId) };
 
       return {
         isEditing: true,
@@ -110,7 +114,6 @@ class Feed extends Component {
     this.setState({
       editLoading: true
     });
-    // Set up data (with image!)
     const formData = new FormData();
     formData.append('title', postData.title);
     formData.append('content', postData.content);
@@ -118,13 +121,16 @@ class Feed extends Component {
     let url = 'http://localhost:8080/feed/post';
     let method = 'POST';
     if (this.state.editPost) {
-      url = 'http://localhost:8080/feed/post/' + this.state.editPost.id;
+      url = 'http://localhost:8080/feed/post/' + this.state.editPost._id;
       method = 'PUT';
     }
 
     fetch(url, {
       method: method,
-      body: formData
+      body: formData,
+      headers: {
+        Authorization: 'Bearer ' + this.props.token
+      }
     })
       .then(res => {
         if (res.status !== 200 && res.status !== 201) {
@@ -135,7 +141,7 @@ class Feed extends Component {
       .then(resData => {
         console.log(resData);
         const post = {
-          id: resData.post.id,
+          _id: resData.post._id,
           title: resData.post.title,
           content: resData.post.content,
           creator: resData.post.creator,
@@ -145,7 +151,7 @@ class Feed extends Component {
           let updatedPosts = [...prevState.posts];
           if (prevState.editPost) {
             const postIndex = prevState.posts.findIndex(
-              p => p.id === prevState.editPost.id
+              p => p._id === prevState.editPost._id
             );
             updatedPosts[postIndex] = post;
           } else if (prevState.posts.length < 2) {
@@ -178,7 +184,9 @@ class Feed extends Component {
     this.setState({ postsLoading: true });
     fetch('http://localhost:8080/feed/post/' + postId, {
       method: 'DELETE',
-
+      headers: {
+        Authorization: 'Bearer ' + this.props.token
+      }
     })
       .then(res => {
         if (res.status !== 200 && res.status !== 201) {
@@ -189,7 +197,7 @@ class Feed extends Component {
       .then(resData => {
         console.log(resData);
         this.setState(prevState => {
-          const updatedPosts = prevState.posts.filter(p => p.id !== postId);
+          const updatedPosts = prevState.posts.filter(p => p._id !== postId);
           return { posts: updatedPosts, postsLoading: false };
         });
       })
@@ -255,15 +263,15 @@ class Feed extends Component {
             >
               {this.state.posts.map(post => (
                 <Post
-                  key={post.id}  // Change id to id
-                  id={post.id}
-                  author={post.creator}
+                  key={post._id}
+                  id={post._id}
+                  author={post.creator.name}
                   date={new Date(post.createdAt).toLocaleDateString('en-US')}
                   title={post.title}
                   image={post.imageUrl}
                   content={post.content}
-                  onStartEdit={this.startEditPostHandler.bind(this, post.id)}
-                  onDelete={this.deletePostHandler.bind(this, post.id)}
+                  onStartEdit={this.startEditPostHandler.bind(this, post._id)}
+                  onDelete={this.deletePostHandler.bind(this, post._id)}
                 />
               ))}
             </Paginator>
